@@ -3,28 +3,50 @@ package com.graph.walker;
 import java.util.*;
 
 public class Game {
-    private final List<Set<Node>> graph;
-    private final int level;
+    private List<Set<Node>> graph;
+
+    private int level;
     private int currentNode = 0;
     private int lives;
-    public static boolean gameOver = false;
+    private boolean gameOver = false;
 
-    public Game(int nodes) {
-        this.graph = new ArrayList<>(nodes);
-        this.level = nodes;
-        this.lives = nodes + 3;
+    Game() {
+        this.graph = new ArrayList<>();
+    }
 
+    void addNode(int parent, int node){
+        if(parent == node){
+            throw new IllegalArgumentException("Can'\t connect node to itself");
+        }
+
+        if(parent < 0 || node < 0){
+            throw new IllegalArgumentException("Node number must be >= 0");
+        }
+
+        if(parent >= this.getLevel() || node >= this.getLevel()){
+            throw new IllegalArgumentException("Node number must be <= total nodes number");
+        }
+
+        graph.get(parent).add(new Node(node));
+        graph.get(node).add(new Node(parent));
+    }
+
+    void initEmptySets(int nodes){
         for (int i = 0; i < nodes; i++) {
             graph.add(new HashSet<>());
         }
     }
 
-    void addNode(int parent, int node){
-        graph.get(parent).add(new Node(node));
-        graph.get(node).add(new Node(parent));
-    }
+    void generateField(int nodes){
+        if(nodes < 3){
+            throw new IllegalArgumentException("At least 3 nodes required to generate field");
+        }
 
-    void generateField(){
+        this.level = nodes;
+        this.lives = nodes + 3;
+
+        initEmptySets(nodes);
+
         Random random = new Random();
         int randomLink;
 
@@ -72,5 +94,24 @@ public class Game {
             System.out.println(graph.get(i));
         }
         System.out.println();
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public List<Set<Node>> getGraph() {
+        return graph;
+    }
+
+    public void setLevel(int level) {
+        if(level < 3){
+            throw new IllegalArgumentException("At least 3 nodes required to generate field");
+        }
+        this.level = level;
+    }
+
+    public int getLevel() {
+        return level;
     }
 }

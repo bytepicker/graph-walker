@@ -85,7 +85,7 @@ public class Game {
     }
 
     void roundFinished() {
-        this.printNodes();
+        printNodes();
         if (lives == 0) {
             System.out.println("[ Game over ]");
             gameOver = true;

@@ -3,7 +3,7 @@ package com.graph.walker;
 import java.util.*;
 
 public class Game {
-    private List<Set<Node>> graph;
+    private final List<Set<Node>> graph;
 
     private int level;
     private int currentNode = 0;
@@ -14,16 +14,16 @@ public class Game {
         this.graph = new ArrayList<>();
     }
 
-    void addNode(int parent, int node){
-        if(parent == node){
+    void addNode(int parent, int node) {
+        if (parent == node) {
             throw new IllegalArgumentException("Can'\t connect node to itself");
         }
 
-        if(parent < 0 || node < 0){
+        if (parent < 0 || node < 0) {
             throw new IllegalArgumentException("Node number must be >= 0");
         }
 
-        if(parent >= this.getLevel() || node >= this.getLevel()){
+        if (parent >= this.getLevel() || node >= this.getLevel()) {
             throw new IllegalArgumentException("Node number must be <= total nodes number");
         }
 
@@ -31,17 +31,18 @@ public class Game {
         graph.get(node).add(new Node(parent));
     }
 
-    void initEmptySets(int nodes){
+    void initEmptySets(int nodes) {
         for (int i = 0; i < nodes; i++) {
             graph.add(new HashSet<>());
         }
     }
 
-    void generateField(int nodes){
-        if(nodes < 3){
+    void generateField(int nodes) {
+        if (nodes < 3) {
             throw new IllegalArgumentException("At least 3 nodes required to generate field");
         }
 
+        this.currentNode = 0;
         this.level = nodes;
         this.lives = nodes + 3;
 
@@ -50,7 +51,7 @@ public class Game {
         Random random = new Random();
         int randomLink;
 
-        for(int i = 0; i < this.level; i++){
+        for (int i = 0; i < this.level; i++) {
             do {
                 randomLink = random.nextInt(this.level);
             } while (randomLink == i);
@@ -58,37 +59,56 @@ public class Game {
         }
     }
 
-    void interact(){
-        while(this.currentNode != this.level-1 && this.lives != 0) {
+    void interact() {
+        while (this.currentNode != this.level - 1 && this.lives != 0) {
             Scanner sc = new Scanner(System.in);
             System.out.println("\nNodes: " + this.level + " Lives: " + this.lives);
             System.out.println("Current node: " + this.currentNode);
-            System.out.print("Enter next node number: ");
-            checkUserInputPath(sc.nextInt());
+
+            try {
+                System.out.print("Enter next node number: ");
+                int input = sc.nextInt();
+                if (input == currentNode) {
+                    throw new IllegalArgumentException("A node can'\t link to itself");
+                }
+                if (input < 0 || input > this.getLevel()) {
+                    throw new IllegalArgumentException("Value must be non-negative and below nodes count");
+                }
+                checkUserInputPath(input);
+            } catch (IllegalArgumentException exception) {
+                System.out.println(exception.getMessage());
+                System.out.print("Want to continue? ");
+                if (sc.next().equalsIgnoreCase("Y")) {
+                    this.interact();
+                } else {
+                    System.exit(0);
+                }
+            }
         }
         roundFinished();
     }
 
-    void roundFinished(){
+    void roundFinished() {
         printNodes();
-        if(this.lives == 0){
-            System.out.println("Game over");
+        if (this.lives == 0) {
+            System.out.println("[ Game over ]");
             gameOver = true;
         } else {
-            System.out.println("You won! Starting next level");
+            System.out.println("[ You won! Starting next level ]");
         }
+        graph.clear();
     }
 
-    void checkUserInputPath(int node){
-        if(graph.get(this.currentNode).stream().filter(e -> e.num == node).findFirst().isEmpty()){
+    void checkUserInputPath(int node) {
+        if (graph.get(this.currentNode).stream().filter(e -> e.num == node).findFirst().isEmpty()) {
             this.lives--;
-            System.out.println("No link from " + this.currentNode + " to " + node);
+            System.out.println("[ No link from " + this.currentNode + " to " + node + " ]");
         } else {
             this.currentNode = node;
         }
     }
 
-    void printNodes(){
+    void printNodes() {
         for (int i = 0; i < graph.size(); i++) {
             System.out.println("\nLinks of Node #" + i);
             System.out.println(graph.get(i));
@@ -105,7 +125,7 @@ public class Game {
     }
 
     public void setLevel(int level) {
-        if(level < 3){
+        if (level < 3) {
             throw new IllegalArgumentException("At least 3 nodes required to generate field");
         }
         this.level = level;

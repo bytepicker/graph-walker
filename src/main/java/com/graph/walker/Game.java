@@ -23,7 +23,7 @@ public class Game {
             throw new IllegalArgumentException("Node number must be >= 0");
         }
 
-        if (parent >= this.getLevel() || node >= this.getLevel()) {
+        if (parent >= getLevel() || node >= getLevel()) {
             throw new IllegalArgumentException("Node number must be <= total nodes number");
         }
 
@@ -85,7 +85,7 @@ public class Game {
     }
 
     void roundFinished() {
-        this.printNodes();
+        printNodes();
         if (lives == 0) {
             System.out.println("[ Game over ]");
             gameOver = true;
